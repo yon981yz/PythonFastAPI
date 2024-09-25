@@ -54,7 +54,7 @@ class _QueryAddressState extends State<QueryAddress> {
                   data[index][3],
                   data[index][4],
                   data[index][5],
-                ]);
+                ])!.then((value) => getJSONData());
               },
               child: Card(
                 child: Row(

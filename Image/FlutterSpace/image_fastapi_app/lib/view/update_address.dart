@@ -127,9 +127,13 @@ class _UpdateAddressState extends State<UpdateAddress> {
                 padding: const EdgeInsets.all(20.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    insertAction();
+                    if(firstDisp == 0){
+                      updateAction();
+                    }else{
+                      updateActionAll();
+                    }
                   }, 
-                  child: const Text('입력')
+                  child: const Text('수정')
                 ),
               ),
             ],
@@ -143,14 +147,30 @@ class _UpdateAddressState extends State<UpdateAddress> {
   getImageFromGallery(ImageSource imageSource) async {
     final XFile? pickedFile = await picker.pickImage(source: imageSource);
     imageFile = XFile(pickedFile!.path);
+    firstDisp = 1;
     setState(() {});
     // print(imageFile!.path);
   }
 
-  insertAction() async {
+  updateAction() {
     // filename이 필요하므로 filename을 얻기 전 까지는 다음 단계를 멈춘다.
+    updateJSONData();
+  }
+
+  updateActionAll() async {
+    await deleteImage(value[5]);
     await uploadImage();
-    insertJSONData();
+    updateJSONDataAll();
+  }
+
+  deleteImage(String fileName) async {
+    final response = await http
+    .delete((Uri.parse('http://127.0.0.1:8000/deleteFile/$fileName')));
+    if (response.statusCode == 200) {
+      print("Image deleted Successfully");
+    }else{
+      print("Image deletion failed.");
+    }
   }
 
   uploadImage() async {
@@ -174,8 +194,20 @@ class _UpdateAddressState extends State<UpdateAddress> {
     }
   }
 
-  insertJSONData() async {
-    var url = Uri.parse('http://127.0.0.1:8000/insert?name=${nameController.text}&phone=${phoneController.text}&address=${addressController.text}&relation=${relationController.text}&filename=${filename}');
+  updateJSONData() async {
+    var url = Uri.parse('http://127.0.0.1:8000/update?seq=${value[0]}&name=${nameController.text}&phone=${phoneController.text}&address=${addressController.text}&relation=${relationController.text}');
+    var response = await http.get(url);
+    var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
+    var result = dataConvertedJSON['result'];
+    if (result == 'OK'){
+      _showDialog();
+    }else{
+      _errorSnackBar();
+    }
+  }
+
+  updateJSONDataAll() async {
+    var url = Uri.parse('http://127.0.0.1:8000/updateAll?seq=${value[0]}&name=${nameController.text}&phone=${phoneController.text}&address=${addressController.text}&relation=${relationController.text}&filename=${filename}');
     var response = await http.get(url);
     var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
     var result = dataConvertedJSON['result'];

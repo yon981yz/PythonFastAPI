@@ -55,6 +55,40 @@ async def insert(name: str=None, phone: str=None, address: str=None, relation: s
         print("Error", e)
         return({'result':'Error'})
 
+@app.get("/update")
+async def insert(name: str=None, phone: str=None, address: str=None, relation: str=None, seq: str=None):
+    conn = connect()
+    curs = conn.cursor()
+
+    try: 
+        sql = "update address set name=%s, phone=%s, address=%s, relation=%s where seq=%s"
+        curs.execute(sql,(name, phone, address, relation, seq))
+        conn.commit()
+        conn.close()
+        return{'result':'OK'}
+    
+    except Exception as e:
+        conn.close()
+        print("Error", e)
+        return({'result':'Error'})
+    
+@app.get("/updateAll")
+async def insert(name: str=None, phone: str=None, address: str=None, relation: str=None, filename: str=None, seq: str=None):
+    conn = connect()
+    curs = conn.cursor()
+
+    try: 
+        sql = "update address set name=%s, phone=%s, address=%s, relation=%s, filename=%s where seq=%s"
+        curs.execute(sql,(name, phone, address, relation, filename, seq))
+        conn.commit()
+        conn.close()
+        return{'result':'OK'}
+    
+    except Exception as e:
+        conn.close()
+        print("Error", e)
+        return({'result':'Error'})
+    
 @app.get("/select")
 async def select():
     conn = connect()
@@ -74,6 +108,17 @@ async def get_file(file_name: str):
     if os.path.exists(file_path):
         return FileResponse(path=file_path, filename=file_name)
     return {'result' : 'error'}
+
+@app.get("/deleteFile/{file_name}")
+async def delete_file(file_name: str):
+    try:
+        file_path = os.path.join(UPLOAD_FOLDER, file_name)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        return {'result': "OK"}
+    except Exception as e:
+        print("Error", e)
+        return({'result':'Error'})
 
 if __name__ == "__main__":
     import uvicorn
