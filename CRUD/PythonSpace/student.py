@@ -95,7 +95,7 @@ async def update(code: str=None, name: str=None, dept: str=None, phone: str=None
     except Exception as e:
         conn.close()
         print('Error :', e)
-        return {'result': 'Error'}
+        return {'results': 'Error'}
 
 
 if __name__=="__main__":
